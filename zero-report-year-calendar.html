@@ -1,0 +1,104 @@
+<script type="text/javascript">
+//使用方法：进入GitHub，下载本HTML文件到本地，使用文本编辑器打开。
+//         进入平台，右上角有个饼图“统计”，点击后，在左上角有个“导出”。导出成Excel后。打开Excel，定位到A1或者任意有字的位置，Ctrl+A全选，Ctrl+C拷贝，在下面“替换我”那里整体替换。应该最后是2行非常长的字符串。
+//         HTML用浏览器打开。分析。
+
+    const importString = `
+替换我第一行
+替换我第二行
+`;
+</script>
+
+
+
+<html>
+	<head>
+        <link rel="stylesheet" type="text/css" href="https://unpkg.com/js-year-calendar@latest/dist/js-year-calendar.min.css" />        
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="Content-Type" content="text/html; charset=utf-8" />
+		<title>年历</title>
+	</head>
+
+    <body>
+
+        <div>
+            <span style="background-color: red; color: white;">红色</span>为需要但是没有。
+			<span style="background-color: green; color: white;">绿色</span>为有。
+        </div>
+
+        <div id="calendar"></div>
+
+    </body>
+</html>
+
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://unpkg.com/js-year-calendar@latest/dist/js-year-calendar.min.js"></script>
+
+<script type="text/javascript">
+    var lines = importString.split('\n')
+    if (2 > lines.length) {
+        alert('导入数据是否有错误？应当是2行以上！')
+    }
+
+    var title
+    var content
+    for (var i = 0; i < lines.length; i++) {
+        if (title && content) {
+            break
+        }
+
+        if (0 < lines[i].length) {
+            if (!title) {
+                title = lines[i]
+                continue
+            }
+            if (!content) {
+                content = lines[i]
+                continue
+            }
+        }
+    }
+
+    if (!(title && content)) {
+        alert('数据有错误？')
+    }
+    var titleFields = title.trim().split(/\s/)
+    var contentFields = content.trim().split(/\s/)
+
+    Calendar.locales['zh-CN'] = {
+        days: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+        daysShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+        daysMin: ["日", "一", "二", "三", "四", "五", "六"],
+        months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+        monthsShort: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+        weekShort: '周',
+        weekStart: 1
+    };
+    
+    new Calendar('#calendar', {
+		language: 'zh-CN',
+        customDayRenderer: function(element, date) {
+            const nowDate = date.getFullYear() + '-' + 
+                ("0" + (date.getMonth() + 1)).slice(-2) + '-' + 
+                ("0" + date.getDate()).slice(-2)
+
+            const index = titleFields.indexOf(nowDate)
+            if (-1 == index) {
+                return
+            }
+
+            if ("正常" == contentFields[index]) {
+                $(element).css('background-color', 'green');
+                $(element).css('color', 'white');
+                $(element).css('border-radius', '15px');
+            }
+            if ("未上报" == contentFields[index]) {
+                $(element).css('background-color', 'red');
+                $(element).css('color', 'white');
+                $(element).css('border-radius', '15px');
+            }
+            
+        }
+    })
+</script>
